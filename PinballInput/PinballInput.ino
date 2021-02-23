@@ -166,7 +166,7 @@ void handleMultiBall(){
 
 void updateScore(int amount) {
   score += amount;
-  updateScreen()
+  updateScreen();
   flashLEDs();
 }
 
