@@ -66,7 +66,8 @@ void setup() {
   startLED();
 
   lcd.begin(16, 2);
- 
+  lcd.setCursor(0, 0);
+  lcd.print("Score:");
 }
 
 void loop() {
@@ -165,12 +166,12 @@ void handleMultiBall(){
 
 void updateScore(int amount) {
   score += amount;
+  updateScreen()
   flashLEDs();
 }
 
 void updateScreen() {
-  lcd.clear();
-  lcd.setCursor(0,0);
+  lcd.setCursor(0,1);
   lcd.print(score);
 }
 
@@ -207,7 +208,7 @@ void startMCP(){
 
   for(int i = 0; i < inputPinCount; i++){
     mcp.pinMode(targetPins[0], INPUT);
-    mcp.pullUp(targetPins[0], LOW);  // turn on a 100K pullup internally
+//    mcp.pullUp(targetPins[0], LOW);  // turn on a 100K pullup internally
     mcp.setupInterruptPin(targetPins[0], RISING); 
   }
 }
