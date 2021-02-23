@@ -75,7 +75,7 @@ void loop() {
   // put your main code here, to run repeatedly:  
   // enable interrupts before going to sleep/wait
   // And we setup a callback for the arduino INT handler.
-  attachInterrupt(arduinoInterrupt,intCallBack,RISING);
+  attachInterrupt(arduinoInterrupt, intCallBack, RISING);
   
   // Simulate a deep sleep
   while(!awakenByInterrupt);
@@ -93,7 +93,15 @@ void checkBallDrain(){
 void handleInterrupt(){
   uint8_t pin=mcp.getLastInterruptPin();
   uint8_t val=mcp.getLastInterruptPinValue();
-  checkTarget(pin);
+  Serial.print("Pin: ");
+  Serial.println(pin);
+  Serial.print("Val: ");
+  Serial.println(val);
+  Serial.println("");
+  
+  if(val == HIGH){
+    checkTarget(pin);
+  }
 
   while( ! (mcp.digitalRead(pin) ));
   // and clean queued INT signal
@@ -206,7 +214,7 @@ void startSSD1306Screen() {
 
 void startMCP(){
   mcp.begin();
-
+  mcp.setupInterrupts(true, false, HIGH);
   for(int i = 0; i < inputPinCount; i++){
     mcp.pinMode(targetPins[0], INPUT);
 //    mcp.pullUp(targetPins[0], LOW);  // turn on a 100K pullup internally
