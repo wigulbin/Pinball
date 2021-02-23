@@ -18,12 +18,13 @@ byte arduinoInterrupt=1;
 int servoPin = 5;
 
 // LCD Pins
-#define rs 7
-#define en 8
-#define d4 9
-#define d5 10
-#define d6 11
-#define d7 12
+//#define rs 7
+//#define en 8
+//#define d4 9
+//#define d5 10
+//#define d6 11
+//#define d7 12
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 
 // Pinball Input Pins
 //#define laserPin 1
