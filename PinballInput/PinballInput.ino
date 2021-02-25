@@ -11,6 +11,8 @@
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
+byte arduinoIntPin = 3;
+
 volatile boolean awakenByInterrupt = false;
 byte arduinoInterrupt=1;
 
@@ -24,7 +26,7 @@ int servoPin = 5;
 //#define d5 10
 //#define d6 11
 //#define d7 12
-const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 7, d7 = 2;
 
 // Pinball Input Pins
 //#define laserPin 1
@@ -51,7 +53,7 @@ CRGB leds[NUM_LEDS];
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 Adafruit_MCP23017 mcp;
-int score = 0;
+volatile int score = 0;
 int counter = 3;
 int multiBallCounter = 0;
 int targetCounter = 0;
@@ -63,29 +65,33 @@ void setup() {
   Serial.begin(9600);
   // put your setup code here, to run once:
 //  startSSD1306Screen()
-  startMCP();
   startLED();
+
+  pinMode(arduinoIntPin, INPUT);
 
   lcd.begin(16, 2);
   lcd.setCursor(0, 0);
   lcd.print("Score:");
+  startMCP();
+  attachInterrupt(arduinoInterrupt, intCallBack, RISING);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:  
   // enable interrupts before going to sleep/wait
   // And we setup a callback for the arduino INT handler.
-  attachInterrupt(arduinoInterrupt, intCallBack, RISING);
-  
+//  updateScreen();
   // Simulate a deep sleep
-  while(!awakenByInterrupt);
-  // Or sleep the arduino, this lib is great, if you have it.
-  //LowPower.powerDown(SLEEP_1S, ADC_OFF, BOD_OFF);
-  
+//  while(!awakenByInterrupt);
   // disable interrupts while handling them.
-  detachInterrupt(arduinoInterrupt);
+//  detachInterrupt(arduinoInterrupt);
   
-  if(awakenByInterrupt) handleInterrupt();
+//  if(awakenByInterrupt) {
+//    Serial.println("Woken by interrupt...");
+//    handleInterrupt();
+//  }
+
+//delay(10);
 }
 
 void checkBallDrain(){
@@ -99,11 +105,11 @@ void handleInterrupt(){
   Serial.println(val);
   Serial.println("");
   
-  if(val == HIGH){
+  if(val > 0){
     checkTarget(pin);
   }
 
-  while( ! (mcp.digitalRead(pin) ));
+//  while( ! (mcp.digitalRead(pin) ));
   // and clean queued INT signal
   cleanInterrupts();
 }
@@ -114,9 +120,14 @@ void cleanInterrupts(){
 }  
 void intCallBack(){
   awakenByInterrupt=true;
+  handleInterrupt();
 }
 
 void checkTarget(int targetPin) {
+  Serial.print("Checking target: ");
+  Serial.println(targetPin);
+  Serial.print("Target 1: ");
+  Serial.println(ramp2Pin);
   int targetHit = mcp.digitalRead(targetPin);
   if(targetHit > 0) {
     switch(targetPin){
@@ -174,6 +185,7 @@ void handleMultiBall(){
 }
 
 void updateScore(int amount) {
+  noInterrupts();
   score += amount;
   updateScreen();
   flashLEDs();
@@ -213,16 +225,20 @@ void startSSD1306Screen() {
 }
 
 void startMCP(){
+  Serial.println("Starting MCP...");
   mcp.begin();
   mcp.setupInterrupts(true, false, HIGH);
   for(int i = 0; i < inputPinCount; i++){
-    mcp.pinMode(targetPins[0], INPUT);
-//    mcp.pullUp(targetPins[0], LOW);  // turn on a 100K pullup internally
-    mcp.setupInterruptPin(targetPins[0], RISING); 
+    Serial.print("Starting pin: ");
+    Serial.println(targetPins[i]);
+    mcp.pinMode(targetPins[i], INPUT);
+    mcp.setupInterruptPin(targetPins[i], CHANGE); 
   }
+  Serial.println("MCP Done");
 }
 
 void startLED(){
+  Serial.println("Starting LEDs...");
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   playRunner();
   playRunnerReverse();
