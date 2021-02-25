@@ -12,6 +12,7 @@
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 byte arduinoIntPin = 3;
+int interruptPin = 3;
 
 volatile boolean awakenByInterrupt = false;
 byte arduinoInterrupt=1;
@@ -73,10 +74,11 @@ void setup() {
   lcd.setCursor(0, 0);
   lcd.print("Score:");
   startMCP();
-  attachInterrupt(arduinoInterrupt, intCallBack, RISING);
+  attachInterrupt(digitalPinToInterrupt(interruptPin), intCallBack, CHANGE);
 }
 
 void loop() {
+  updateScreen();
   // put your main code here, to run repeatedly:  
   // enable interrupts before going to sleep/wait
   // And we setup a callback for the arduino INT handler.
@@ -97,6 +99,14 @@ void loop() {
 void checkBallDrain(){
 }
 void handleInterrupt(){
+}
+
+void cleanInterrupts(){
+  EIFR=0x01;
+  awakenByInterrupt=false;
+}  
+void intCallBack(){
+  awakenByInterrupt=true;
   uint8_t pin=mcp.getLastInterruptPin();
   uint8_t val=mcp.getLastInterruptPinValue();
   Serial.print("Pin: ");
@@ -112,15 +122,6 @@ void handleInterrupt(){
 //  while( ! (mcp.digitalRead(pin) ));
   // and clean queued INT signal
   cleanInterrupts();
-}
-
-void cleanInterrupts(){
-  EIFR=0x01;
-  awakenByInterrupt=false;
-}  
-void intCallBack(){
-  awakenByInterrupt=true;
-  handleInterrupt();
 }
 
 void checkTarget(int targetPin) {
@@ -185,9 +186,8 @@ void handleMultiBall(){
 }
 
 void updateScore(int amount) {
-  noInterrupts();
+//  noInterrupts();
   score += amount;
-  updateScreen();
   flashLEDs();
 }
 
