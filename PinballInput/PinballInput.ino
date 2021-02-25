@@ -129,48 +129,46 @@ void checkTarget(int targetPin) {
   Serial.println(targetPin);
   Serial.print("Target 1: ");
   Serial.println(ramp2Pin);
-  int targetHit = mcp.digitalRead(targetPin);
-  if(targetHit > 0) {
-    switch(targetPin){
-      case target1Pin:
-        updateScore(10);
-        targetCounter++;
-        flashLEDs();
-        break;
-      case popBumper1Pin:
-        updateScore(3);
-        popBumperCounter++;
-        flashLEDs();
-        break;
-      case popTargetPin:
-        updateScore(100);
-        popTargetCounter++;
-        flashLEDs();
-        break;
+  switch(targetPin){
+    case target1Pin:
+      updateScore(10);
+      targetCounter++;
+      flashLEDs();
+      break;
+    case popBumper1Pin:
+      updateScore(3);
+      popBumperCounter++;
+      flashLEDs();
+      break;
+    case popTargetPin:
+      updateScore(100);
+      popTargetCounter++;
+      flashLEDs();
+      break;
         
-      case multiBallPin:
-        updateScore(50);
-        multiBallCounter++;
-        flashLEDs();
-        break;
+    case multiBallPin:
+      updateScore(50);
+      multiBallCounter++;
+      flashLEDs();
+      break;
         
-      case ramp1Pin:
-        updateScore(20);
-        rampCounter++;
-        flashLEDs();
-        break;
-      case ramp2Pin:
-        updateScore(20);
-        rampCounter++;
-        flashLEDs();
-        break;
-      case ramp3Pin:
-        updateScore(20);
-        rampCounter++;
-        flashLEDs();
-        break;
-    }
+    case ramp1Pin:
+      updateScore(20);
+      rampCounter++;
+      flashLEDs();
+      break;
+    case ramp2Pin:
+      updateScore(20);
+      rampCounter++;
+      flashLEDs();
+      break;
+    case ramp3Pin:
+      updateScore(20);
+      rampCounter++;
+      flashLEDs();
+      break;
   }
+  
 }
 
 void handleMultiBall(){
